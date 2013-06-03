@@ -1,0 +1,54 @@
+clear all;
+%% Test of primal and dual for distributed
+n=400;
+A=rand(n);
+params.numr=n;
+params.numc=n/2;
+%% Primal Norm Test
+L=rand(10,5);
+R=rand(10,5);
+B=.001;
+params.numr=10;
+params.nr=5;
+spmd
+    dist = codistributor1d(1,[5,5],[10,5]);
+    Ltest= codistributed(L,dist);
+    Rtest= codistributed(R,dist);
+    LLocal=getLocalPart(Ltest);
+    LLocal=vec(LLocal);
+    RLocal=getLocalPart(Rtest);
+    RLocal=vec(RLocal);
+    local_x = [LLocal;RLocal];
+     new_codistr_vec = codistributor1d(1, [50 50], [100 1]);
+     x = codistributed.build(local_x, new_codistr_vec,'noCommunication');
+end
+[X] = TraceNorm_primal(x,1,params)
+0.5*norm([vec(L);vec(R)])^2
+
+%% dual Norm Test
+L=rand(100,30);
+R=rand(100,30);
+params.numr=25;
+params.nr=30;
+X=L*R';
+B=0.01;
+% b=rand(100,100);
+% op = oppWindow2D(100*100,LABSHAPE);
+spmd
+    dist = codistributor1d(1,[25,25,25,25],[100,30]);
+    Ltest= codistributed(L,dist);
+    Rtest= codistributed(R,dist);
+    LLocal=getLocalPart(Ltest);
+    LLocal=vec(LLocal);
+    RLocal=getLocalPart(Rtest);
+    RLocal=vec(RLocal);
+    local_x = [LLocal;RLocal];
+     new_codistr_vec = codistributor1d(1, [1500 1500 1500 1500], [6000 1]);
+     x = codistributed.build(local_x, new_codistr_vec,'noCommunication');
+end
+Xtest=[vec(L);vec(R)];
+[Xp] = TraceNorm_project(x,1,B,params);
+max(svd(X))
+[X] = TraceNorm_pproject(x,1, B,params);
+X=gather(X);
+

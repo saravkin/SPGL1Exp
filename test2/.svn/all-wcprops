@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/84/spgl2/tests
+END
+undist.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/56/spgl2/tests/undist.m
+END
+spgl1Test.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/79/spgl2/tests/spgl1Test.m
+END
+testOptions.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/56/spgl2/tests/testOptions.m
+END
+testParallel.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/56/spgl2/tests/testParallel.m
+END
+SPGL1_lowrank_test.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/84/spgl2/tests/SPGL1_lowrank_test.m
+END
+testParallelCplx.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/SLIM/SLIM.Software.SPGL1-SLIM/!svn/ver/56/spgl2/tests/testParallelCplx.m
+END

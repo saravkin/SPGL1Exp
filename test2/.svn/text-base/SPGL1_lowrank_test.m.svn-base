@@ -1,0 +1,150 @@
+%% Test script for the implementation of General SPG
+
+% open matlab from qmatlabX because of large data file used in this example
+
+% update here the location of spgl2 folder
+addpath(genpath('/users/slic/rkumar/spgl2'));
+%% fetch the data from cluster
+% clear all;
+% close all;
+nt = 1024;
+nr = 355;
+ns = 355;
+outlier =1;
+% %for server
+D=ReadSuFast('/scratch/slic/rkumar/SuezShots125-355shots.su');
+D = reshape(D,nt,nr,ns);  
+data = fft(D);
+clear D
+data = permute(reshape(data,nt,nr,ns),[3 2 1]);
+freq = 1; % for low frequency else high frequency
+
+if freq== 1
+    D = squeeze((data(1:354,1:354,40)));
+else
+    D = squeeze((data(1:354,1:354,280)));
+end
+clear data;
+nm = size(D);
+nR = nm(2);
+nC = nm(1);% length of frequency axis
+
+%% Define Restriction Operator
+inds=randperm(nR);
+ind=inds(1:floor(nR/2));
+R1 = opRestriction(nR,ind);
+R2 = opKron(R1,opDirac(nR));
+%% Operator to do conversion to midpoint offset
+opSR=opSR2MH(354);
+info=opSR([],0);
+SR=opFunction(info{1},info{2},opSR);
+%%  RHS defined
+D1 = R2*vec(D); 
+D1 = reshape(D1,nR,nC/2);
+I = randperm(size(D1,2));
+J = floor(.05*size(D1,2)); % change here the percentage of outlier in the data set
+I = I(1:J);
+D1(:,I)= 1e3*rand(nR,length(I));
+D1 = R2'*vec(D1);
+if outlier == 1
+  Bfun = @(x)SR*vec(x); 
+  b= Bfun(D1);
+else
+    Bfun = @(x)SR*R2'*R2*vec(x);
+    b = Bfun(D);
+end
+
+%% Function Handle
+params.afunT = @(x)reshape(x,nR,nC*2);
+%params.F = @(x)R2*SR'*vec(x);
+params.Ind = find(b==0);
+params.afun = @(x)afun(x,params.Ind);
+params.numr = nR;
+params.numc = 2*nC;
+params.nr = 20; % define here the rank value to evaluate. right now the rank 
+% to be assumed is 20.
+
+params.funForward = @NLfunForward;
+regularizer = 'trace_norm_regularize';
+%regularizer = 'max_norm_regularize';
+
+%% options for trace norm
+switch regularizer
+    case 'trace_norm_regularize'
+        % options for Max-Norm
+opts = spgSetParms('optTol',1e-4, ...
+                   'bpTol', 1e-6,...
+                    'decTol',1e-4,...
+                   'project', @TraceNorm_project, ...
+                   'primal_norm', @TraceNorm_primal, ...
+                   'dual_norm', @TraceNorm_dual, ...
+                   'proxy', 1, ...
+                   'ignorePErr', 1, ...
+                   'iterations', 150);
+    case 'max_norm_regularize'
+        % options for Max-Norm
+opts = spgSetParms('optTol',1e-4, ...
+                   'bpTol', 1e-6,...
+                   'decTol',1e-5,...
+                   'project', @MaxNorm_project, ...
+                   'primal_norm', @MaxNorm_primal, ...
+                   'dual_norm', @MaxNorm_dual, ...
+                   'proxy', 1, ...
+                   'ignorePErr', 1, ...
+                   'iterations', 150);
+end
+ 
+%% Run the main algorithm
+
+LInit   = (1e-2*randn(params.numr,params.nr)+1i*1e-2*randn(params.numr,params.nr));
+RInit   = (1e-2*randn(params.numc,params.nr)+1i*1e-2*randn(params.numc,params.nr));
+xinit  = [vec(LInit);vec(RInit)]; % Initial guess
+tau = norm(xinit,1);
+
+
+if outlier == 1
+    sigma = 1e1;
+    params.nu = 5e2;
+    opts.funPenalty = @funST;
+    [xST,r,g,info] = spgl1(@NLfunForward,b,tau,sigma,xinit,opts,params);
+    e   = params.numr*params.nr;
+    L1  = xST(1:e);
+    R1  = xST(e+1:end);
+    L1  = reshape(L1,params.numr,params.nr);
+    R1  = reshape(R1,params.numc,params.nr);
+    xst = reshape(SR'*vec(L1*R1'),nR,nC);
+    SNR = -20*log(norm(D-xst,'fro')/norm(D,'fro'))
+    
+    % plot results
+    figure,
+    subplot(1,2,1);imagesc(real(reshape(R2'*R2*D1,nR,nC)));...
+        colormap(gray);
+    title('before denoising');
+    subplot(1,2,2);imagesc(real(xst));colormap(gray);
+    title('After denosing and interpolation');
+   
+else
+    sigma = 5;
+    params.funPenalty = @funLS;
+    [xLS,r1,g1,info1] = spgl1(@NLfunForward,b,tau,sigma,xinit,opts,params);
+    e = params.numr*params.nr;
+    L1 = xLS(1:e);
+    R1 = xLS(e+1:end);
+    L1 = reshape(L1,params.numr,params.nr);
+    R1 = reshape(R1,params.numc,params.nr);
+    xls = reshape(SR'*vec(L1*R1'),nR,nC);
+    SNR = -20*log(norm(D-xls,'fro')/norm(D,'fro'))
+    
+    % plot results
+    figure,
+    subplot(1,3,1);imagesc(real(reshape(R2'*R2*vec(D),nR,nC)));...
+        colormap(gray);
+    title('before interpolation');
+    subplot(1,3,2);imagesc(real(xls));colormap(gray);
+    title('After interpolation');
+    subplot(1,3,3);imagesc(real(reshape(vec(D),nR,nC))-real(xls));...
+        colormap(gray);
+    title('Diff between before and After interpolation');
+end
+
+

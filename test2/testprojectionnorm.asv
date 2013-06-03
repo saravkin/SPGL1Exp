@@ -1,0 +1,63 @@
+% x=[1 2 3 4 5];
+x=rand(100,1);
+B=1e4;
+a=B*x/(0.5*norm(x)^2);
+0.5*norm(a)^2
+%%
+b=0.5*norm(x)^2;
+scale=sqrt(B/b);
+a=B*x*scale/norm(x);
+0.5*norm(a)^2
+%%
+L=rand(10,5);
+R=rand(10,5);
+B=1e4
+LOut = L*1/(1+B);
+ROut = R*1/(1+B);
+X = [LOut(:);ROut(:)];
+0.5*norm(X)^2
+Xtest=[L(:);R(:)];
+0.5*norm(Xtest)^2
+
+normLR = norm(L(:)) + norm(R(:))
+if(normLR > B)
+   LOut = B*L/normLR;
+   ROut = B*R/normLR;
+else
+   LOut = L;
+   ROut = R;
+end
+
+X = [vec(LOut);vec(ROut)];
+0.5*norm(X)^2
+X = [vec(L);vec(R)];
+%%
+L=rand(10,1);
+R=rand(10,1);
+%% Projection in case of nuclear norm
+L=LInit;
+R=RInit;
+B=tau;
+numr = size(L,1);
+numc = size(R,1);
+
+row_normsL = sqrt(sum(L.^2,2));
+row_normsR = sqrt(sum(R.^2,2));
+
+rescaleL = min(ones(numr,1), sqrt(B)./row_normsL);
+rescaleR = min(ones(numc,1), sqrt(B)./row_normsR);
+
+LOut = (L.*(rescaleL*ones(1, size(L,2))));
+ROut = (R.*(rescaleR*ones(1, size(R,2))));
+
+X = [vec(LOut);vec(ROut)];
+tfac=0.5*norm(X)^2;
+
+Lfac=B/tfac;
+LOut = (L.*(rescaleL*ones(1, size(L,2))))*sqrt(Lfac);
+ROut = (R.*(rescaleR*ones(1, size(R,2))))*sqrt(Lfac);
+X = [vec(LOut);vec(ROut)];
+tfac=0.5*norm(X)^2
+
+
+
