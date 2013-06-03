@@ -1,0 +1,157 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1138\cocoasubrtf510
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 Add the nuclear norm package from micheal\
+\
+\
+Download the software for classical nuclear-norm using SPGL1 from here :\
+\
+
+\b http://www.cs.ubc.ca/~mpf/2010-sparse-optimization-with-least-squares.html\
+\
+Add the folder into the experiment scripts \
+The Description about the classical SPGL1 nuclear-norm software is as follows:\
+(*Copied from the Original software directory)\
+\
+\
+
+\b0 Introduction\
+------------\
+\
+Thank you for downloading the code accompanying the paper\
+\
+   Sparse optimization with least-squares constraints\
+   Ewout van den Berg and Michael P. Friedlander\
+\
+This code facilitates the reproduction of all figures and tables\
+appearing in the paper, except those that were generated manually or\
+using XFig.\
+\
+Most scripts use pre-computed data files to save time. When a\
+required data file is missing it is automatically regenerated. To\
+regenerate all experiments, simply delete the intermediate files in\
+the `scripts/cache' and `scripts/Experiments/cache' directories.\
+\
+To keep the filesize down, the code is split into four parts:\
+\
+1. Scripts and pre-computed data for the generation of all figures;\
+2. Scripts and dependencies to regenerate all figure data;\
+3. Scripts and pre-computed data for the generation of all tables\
+   (requires parts 1 and 2)\
+4. Scripts and dependencies to regenerate all table data.\
+\
+\
+Getting started\
+---------------\
+Download all zip archives in a suitable directory and unzip\
+them. Next, start Matlab, change directory to the `scripts' directory\
+and type `runme' to set up all required paths.\
+\
+To generate a figure use `GenerateFigure(<figure number>,<export flag)'.\
+The figure number corresponds to the number appearing in the paper\
+(the number can either be specifies as a number or as a string, e.g.,\
+6.1, or '6.1'). Setting the export flag to true causes the figure to\
+be output in .PDF or .PNG format to the `fig' directory. The PDF\
+output script depends on `pdfcrop', which is operating system specific\
+and is not included in the distribution.\
+\
+Tables are output in a similar manner using the `GenerateTable'\
+script.\
+\
+\
+Dependencies\
+------------\
+\
+A number of third-party software packages have been included to ensure\
+reproducibility of the results. Many thanks to all respective\
+developers for either releasing their software under GPL or for\
+granting permission of the redistribution. Please see special\
+instructions for the Curvelab package.\
+\
+\
+Package: ASP\
+Authors: Michael Friedlander and Michael Saunders\
+Paper  : Not yet available\
+Webpage: Not yet available\
+Changes: -\
+\
+\
+Package: Bregman\
+Authors: Wotao Yin\
+Paper  : * W. Yin, S. Osher, D. Goldfarb, and J. Darbon\
+           Bregman iterative algorithms for l1-minimization with applications\
+           to compressed sensing. Rice CAAM TR07-13 or UCLA CAM 07-37.\
+Webpage: http://www.caam.rice.edu/~optimization/L1/bregman/index.html\
+Changes: - Use normest instead of eigs\
+         - Added lower and upper bounds for automatic updates of mu\
+\
+\
+Package: Curvelab\
+Authors: Emmanuel Candes, Laurent Demanet, David Donoho, and Lexing Ying.\
+Paper  : See webpage\
+Webpage: http://www.curvelet.org/\
+Changes: Only a couple of empty directories are included for the path\
+         setup. Please see the software link on the curvelab webpage for\
+         download information.\
+\
+\
+Package: CVX\
+Authors: Michael Grant and Stephen Boyd\
+Paper  : * M. Grant and S. Boyd\
+           CVX: Matlab software for disciplined convex programming (web\
+           page and software). http://stanford.edu/~boyd/cvx, June 2009.\
+         * M. Grant and S. Boyd\
+           Graph implementations for nonsmooth convex programs, Recent\
+           advances in learning and control (a tribute to M. Vidyasagar),\
+           V. Blondel, S. Boyd, and H. Kimura, editors, pages 95-110,\
+           Lecture Notes in Control and Information Sciences, Springer, 2008.\
+           http://stanford.edu/~boyd/graph_dcp.html.\
+Webpage: http://stanford.edu/~boyd/cvx\
+Changes: -\
+\
+\
+Package: FPC\
+Authors: Elaine Hale, Wotao Yin, and Yin Zhang\
+Paper  : * E.T. Hale, W. Yin, and Y. Zhang\
+           A fixed-point continuation method for l1-regularized minimization\
+           with applications to compressed sensing. Rice CAAM TR07-07.\
+Webpage: http://www.caam.rice.edu/~optimization/L1/fpc/\
+Changes: Added timer to fpc_bb.m\
+\
+\
+Package: FPCA\
+Authors: Shiqian Ma\
+Paper  : * S. Ma, D. Goldfarb, and L. Chen\
+           Fixed point and Bregman iterative methods for matrix rank\
+           minimization. Technical Report, Department of IEOR, Columbia\
+           University, 2008.\
+         * D. Goldfarb and S. Ma\
+           Convergence of fixed point continuation algorithms for matrix rank\
+           minimization. Technical Report, Department of IEOR, Columbia\
+          University, 2009.\
+Webpage: http://www.columbia.edu/~sm2756/FPCA.htm\
+Changes: Removed printing in get_opts_FPCA.m\
+\
+\
+Package: GPSR\
+Authors: Mario Figueiredo, Robert Nowak, and Stephen Wright (GPSR)\
+         Kwangmoo Koh, Seung-Jean Kim, and Stephen Boyd (L1_LS)\
+Paper  : * M.A.T. Figueiredo, R.D. Nowak, and S.J. Wright\
+           Gradient projection for sparse reconstruction: Application to\
+           compressed sensing and other inverse problems. IEEE Journal of\
+           selected topics in signal processing, 1(4):586-597, 2007.\
+         * S.-J. Kim, K. Koh, M. Lustig, S. Boyd, and D. Gorinevsky\
+           An interior-point method for large-scale l1-regularized least\
+           squares. IEEE Journal on Selected Topics in Signal Processing,\
+           1(4):606-617, December 2007.\
+Webpage: http://www.lx.it.pt/~mtf/GPSR/\
+         http://www.stanford.edu/~boyd/l1_ls/\
+Changes: Added NNGPSR.m, minor changes to l1_ls.m\
+\
+\
+February 6, 2010\
+Vancouver\
+}

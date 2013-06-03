@@ -1,0 +1,52 @@
+clear all;
+RandStream.setDefaultStream(RandStream('mt19937ar','seed',1));
+script1='C:\Users\mona\Dropbox\Research\Low-Rank\Matrix_Pareto_Factorization\SLIM.Projects.MatrixParetoFact\scripts\Classical_NuclearNorm\';
+addpath(genpath([script1 'scripts-2']));
+addpath(genpath([script1 'scripts/dependencies']));
+run([script1 'TR201002-Figures/scripts/runme']);
+
+%% Generate rank 20 matrix
+sigmas = [1e2*rand(20,1); zeros((100-20), 1)];
+% set up U and V
+U = randn(100, 20);
+[Q R] = qr(U);
+U = Q;
+V = randn(100,20);
+[Q R] = qr(V);
+V = Q;
+% Form A
+D = U*diag(sigmas)*V';
+nm = size(D);
+nR = nm(2);
+nC = nm(1);
+    opts = spgSetParms(
+        'verbosity',1);  
+[m,n] = size(D);
+opts.project     = @(x,weight,tau) NormNuc_project(m,n,x,tau);
+opts.primal_norm = @(x,weight)     NormNuc_primal(m,n,x);
+opts.dual_norm   = @(x,weight)     NormNuc_dual(m,n,x);
+N   = 100;       % the matrix is N x N
+r   = 20;
+df  = 2*N*r - r^2;  % degrees of freedom of a N x N rank r matrix
+nSamples    = floor(1.5*df); % number of observed entries
+idx = randperm(N^2);
+idx = sort(idx(1:nSamples));
+op  = opRestriction(N*N,idx); 
+observations = D(idx);    % the observed entries
+sigma = norm(observations,2);
+epsilon = [1e-1 1e-2 1e-3 1e-4];
+b=D(:); 
+%%
+for i = 1:length(epsilon)
+    sigmafact = epsilon(i)*sigma;
+    tstart = tic;
+    % =====================================================================
+    [XM,resi,grad,data] = spgl1(op, b(idx), [],sigmafact, [], opts);
+    % =====================================================================
+    XM=reshape(XM,N,N);
+    time(i) = toc(tstart);
+    SNR(i) = -20*log10(norm(XM-D,'fro')/norm(D,'fro')); 
+end
+save('classic_nonseismic.mat','time','SNR');
+
+
